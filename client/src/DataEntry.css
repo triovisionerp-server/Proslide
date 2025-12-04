@@ -1,0 +1,54 @@
+.data-entry-container { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+
+/* Fixed Header Alignment */
+.header { 
+    background: linear-gradient(135deg, #4c90af 0%, #175d69 100%); 
+    color: white; 
+    padding: 20px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: left;
+}
+.logo {
+    height: 60px;
+    width: auto;
+    background: rgba(255,255,255,0.1);
+    padding: 5px;
+    border-radius: 5px;
+}
+.header h1 { font-size: 1.8rem; margin: 0 0 5px 0; }
+.header p { margin: 0; opacity: 0.9; }
+
+/* Toolbar Alignment */
+.toolbar { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 10px; }
+.toolbar-left, .toolbar-right { display: flex; gap: 10px; }
+
+/* Buttons */
+.btn { background: #1c8ccc; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; text-decoration: none; font-weight: 500; }
+.btn:hover { background: #45a049; }
+.btn-import { background: #ff9800; cursor: pointer; }
+.btn-danger { background: #f44336; }
+
+/* Table Styles */
+.table-info { background: white; padding: 15px 20px; margin: 20px; border-radius: 8px; display: flex; justify-content: space-between; color: #666; font-weight: 500; }
+.excel-container { background: white; border-radius: 10px; margin: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+.excel-header { background: #FFD700; padding: 15px; font-weight: bold; text-align: center; color: #333; letter-spacing: 0.5px; }
+.table-container { overflow: auto; max-height: 70vh; border: 1px solid #ddd; }
+.excel-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 100%; }
+.excel-table th { background: #FFD700; padding: 12px 8px; position: sticky; top: 0; z-index: 20; border-bottom: 2px solid #DAA520; border-right: 1px solid #DAA520; min-width: 120px; font-size: 12px; text-align: left; vertical-align: middle; }
+.excel-table td { border-bottom: 1px solid #eee; border-right: 1px solid #eee; padding: 0; min-width: 120px; }
+.excel-table tr:hover { background-color: #f8f9fa; }
+
+/* Inputs inside cells */
+.cell-input { width: 100%; border: none; padding: 10px 8px; outline: none; background: transparent; font-family: inherit; font-size: 13px; }
+.cell-input:focus { background: #fff3e0; box-shadow: inset 0 0 0 2px #4CAF50; }
+.row-number { background: #f1f3f4; text-align: center; font-weight: bold; width: 50px; min-width: 50px !important; color: #666; }
+.float-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: #145772; color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; }
+.float-btn:hover { transform: scale(1.1); }
