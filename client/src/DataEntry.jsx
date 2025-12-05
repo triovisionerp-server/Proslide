@@ -6,21 +6,22 @@ import './DataEntry.css';
 
 const DataEntry = () => {
   const navigate = useNavigate();
-
-  const [columns] = useState([
+  
+  // 1. DASHBOARD COLUMNS
+  const [columns, setColumns] = useState([
     { id: 'projectCode', name: 'Project', type: 'text' },
     { id: 'projectDescription', name: 'Description', type: 'text' },
     { id: 'destination', name: 'Destination', type: 'text' },
-    { id: 'containerCount', name: 'No. of Containers', type: 'number' },
+    { id: 'containerNumber', name: 'No. of Containers', type: 'text' },
     { id: 'dispatchTimings', name: 'Dispatch Timings', type: 'text' },
     { id: 'totalParts', name: 'Total Parts', type: 'number' },
     { id: 'totalPartsProduced', name: 'Produced', type: 'number' },
-    { id: 'percentCompleted', name: 'Progress', type: 'number' }, // computed
+    { id: 'percentCompleted', name: 'Progress', type: 'number' },
     { id: 'status', name: 'Status', type: 'text' },
     { id: 'targetCompletionDate', name: 'Target Date', type: 'date' }
   ]);
-
-  const [projectData, setProjectData] = useState([{}]);
+  
+  const [projectData, setProjectData] = useState([]);
   const [stats, setStats] = useState({ total: 0, completed: 0, inProgress: 0 });
 
   useEffect(() => { loadData(); }, []);
@@ -28,152 +29,118 @@ const DataEntry = () => {
   const loadData = async () => {
     try {
       const res = await axios.get('/api/projects');
-      const data = Array.isArray(res.data) && res.data.length ? res.data : [{}];
-      setProjectData(data);
-      updateCounts(data);
-    } catch (err) { console.error('Load failed', err); }
+      if (Array.isArray(res.data)) {
+        // If server has data, use it. If empty, start with 1 empty row.
+        setProjectData(res.data.length ? res.data : []); 
+        updateCounts(res.data);
+      }
+    } catch (err) { console.error(err); }
   };
 
   const saveData = async () => {
     try {
-      const cleanData = projectData.filter(row => Object.values(row).some(v => v !== undefined && v !== null && String(v).trim() !== ''));
+      // Filter out empty rows before saving
+      const cleanData = projectData.filter(row => Object.values(row).some(val => val && String(val).trim() !== ''));
       await axios.post('/api/projects', cleanData);
       updateCounts(cleanData);
-      alert('✅ Data Saved Successfully!');
-    } catch (err) { console.error('Save failed', err); alert('Save failed'); }
+      alert("✅ Data Saved Successfully!");
+    } catch (err) { alert("Save failed"); }
+  };
+
+  // --- DELETE ROW & AUTO-RENUMBER ---
+  const deleteRow = (indexToDelete) => {
+    if(confirm("Are you sure you want to delete this row?")) {
+        // 1. Create copy of data
+        const updatedData = [...projectData];
+        // 2. Remove the specific row
+        updatedData.splice(indexToDelete, 1);
+        // 3. Update State (React automatically fixes S.No because of the map index)
+        setProjectData(updatedData);
+        updateCounts(updatedData);
+    }
   };
 
   const exportToExcel = () => {
-    const exportData = projectData.map(row => {
-      const o = {};
-      columns.forEach(col => { o[col.name] = row[col.id] !== undefined ? row[col.id] : ''; });
-      return o;
-    });
-    const ws = XLSX.utils.json_to_sheet(exportData);
+    const ws = XLSX.utils.json_to_sheet(projectData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Projects');
-    XLSX.writeFile(wb, 'ProSlide_Data.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, "Projects");
+    XLSX.writeFile(wb, "ProSlide_Data.xlsx");
   };
 
-  const normalize = (s) => (s || '').toString().trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-
-  const alternateHeaderMap = {
-    project: 'projectCode', projectcode: 'projectCode', projectname: 'projectCode',
-    description: 'projectDescription',
-    dest: 'destination', destination: 'destination',
-    containers: 'containerCount', noofcontainers: 'containerCount',
-    dispatch: 'dispatchTimings', dispatchtimings: 'dispatchTimings',
-    totalparts: 'totalParts', produced: 'totalPartsProduced',
-    progress: 'percentCompleted', percent: 'percentCompleted',
-    status: 'status', targetdate: 'targetCompletionDate'
-  };
-
-  const parseDateCell = (cellValue) => {
-    if (!cellValue) return '';
-    if (cellValue instanceof Date && !isNaN(cellValue)) {
-      const y = cellValue.getFullYear(); const m = String(cellValue.getMonth() + 1).padStart(2, '0'); const d = String(cellValue.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-    if (typeof cellValue === 'number') {
-      const date = XLSX.SSF.parse_date_code(cellValue);
-      if (date) { const y = date.y; const m = String(date.m).padStart(2, '0'); const d = String(date.d).padStart(2, '0'); return `${y}-${m}-${d}`; }
-    }
-    return String(cellValue).trim();
-  };
-
+  // --- SMART EXCEL IMPORT ---
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
+    
     reader.onload = (evt) => {
-      try {
-        const arrayBuffer = evt.target.result;
-        const data = new Uint8Array(arrayBuffer);
-        const wb = XLSX.read(data, { type: 'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const rawData = XLSX.utils.sheet_to_json(ws, { defval: '' });
-        if (!rawData || rawData.length === 0) { alert('No rows found in the uploaded file.'); return; }
+      const bstr = evt.target.result;
+      const wb = XLSX.read(bstr, { type: 'binary' });
+      const wsname = wb.SheetNames[0];
+      const ws = wb.Sheets[wsname];
+      const rawData = XLSX.utils.sheet_to_json(ws, { defval: "" });
 
-        const cleaned = rawData.map(row => {
-          const normalizedRow = {};
-          Object.keys(row).forEach(k => { normalizedRow[normalize(k)] = row[k]; });
+      if(rawData.length > 0) {
+        const cleanImport = rawData.map(row => {
+            let cleanRow = {};
+            columns.forEach(col => {
+                // Match Header Name OR ID
+                let val = row[col.name] || row[col.id] || "";
+                cleanRow[col.id] = val;
+            });
 
-          const cleanRow = {};
-          columns.forEach(col => {
-            let val = undefined;
-            if (row[col.name] !== undefined) val = row[col.name];
-            if (val === undefined && row[col.id] !== undefined) val = row[col.id];
-            if (val === undefined && normalizedRow[normalize(col.name)] !== undefined) val = normalizedRow[normalize(col.name)];
-            if (val === undefined && normalizedRow[normalize(col.id)] !== undefined) val = normalizedRow[normalize(col.id)];
-            if (val === undefined) {
-              for (const inKey of Object.keys(normalizedRow)) {
-                const mapped = alternateHeaderMap[inKey];
-                if (mapped && mapped === col.id) { val = normalizedRow[inKey]; break; }
-              }
+            // Auto-Calculations
+            const total = parseFloat(cleanRow.totalParts) || 0;
+            const produced = parseFloat(cleanRow.totalPartsProduced) || 0;
+            
+            if (total > 0) {
+                cleanRow.percentCompleted = Math.round((produced/total)*100);
             }
-            if (col.id === 'targetCompletionDate') val = parseDateCell(val);
-            cleanRow[col.id] = val !== undefined && val !== null ? val : '';
-          });
 
-          const total = parseFloat(cleanRow.totalParts) || 0;
-          const produced = parseFloat(cleanRow.totalPartsProduced) || 0;
-          if (total > 0) {
-            cleanRow.percentCompleted = Math.round((produced / total) * 100);
-            cleanRow.totalPartsToBeProduced = Math.max(0, total - produced);
-          } else {
-            cleanRow.percentCompleted = Number(cleanRow.percentCompleted) || 0;
-            cleanRow.totalPartsToBeProduced = '';
-          }
-          if (!cleanRow.status || String(cleanRow.status).trim() === '') {
-            if (cleanRow.percentCompleted >= 100) cleanRow.status = 'Completed';
-            else if (cleanRow.percentCompleted > 0) cleanRow.status = 'In Progress';
-            else cleanRow.status = 'In Planning';
-          }
-          return cleanRow;
+            // Auto-Status
+            if (!cleanRow.status || cleanRow.status === '') {
+                if (cleanRow.percentCompleted >= 100) cleanRow.status = "Completed";
+                else if (cleanRow.percentCompleted > 0) cleanRow.status = "In Progress";
+                else cleanRow.status = "In Planning";
+            }
+            return cleanRow;
         });
 
-        setProjectData(cleaned.length ? cleaned : [{}]);
-        updateCounts(cleaned);
-        alert(`📥 Imported & mapped ${cleaned.length} rows.`);
-      } catch (err) {
-        console.error('Import failed', err);
-        alert('Import failed - see console for details.');
+        // MERGE LOGIC: Add new excel rows to existing data
+        const mergedData = [...projectData, ...cleanImport];
+        // Remove empty rows if any
+        const finalData = mergedData.filter(row => Object.values(row).some(v => v));
+        
+        setProjectData(finalData);
+        updateCounts(finalData);
+        alert(`📥 Successfully added ${cleanImport.length} rows from Excel!`);
       }
     };
-    reader.readAsArrayBuffer(file);
+    reader.readAsBinaryString(file);
   };
 
   const handleCellChange = (index, colId, value) => {
     const newData = [...projectData];
-    if (!newData[index]) newData[index] = {};
+    if(!newData[index]) newData[index] = {};
     newData[index][colId] = value;
 
-    const total = parseFloat(newData[index].totalParts) || 0;
-    const produced = parseFloat(newData[index].totalPartsProduced) || 0;
-
-    if (colId === 'totalParts' || colId === 'totalPartsProduced') {
-      newData[index].percentCompleted = total > 0 ? Math.round((produced / total) * 100) : 0;
-      newData[index].totalPartsToBeProduced = total > 0 ? Math.max(0, total - produced) : '';
+    if(colId === 'totalParts' || colId === 'totalPartsProduced') {
+        const total = parseFloat(newData[index].totalParts) || 0;
+        const produced = parseFloat(newData[index].totalPartsProduced) || 0;
+        newData[index].percentCompleted = total > 0 ? Math.round((produced/total)*100) : 0;
     }
-
-    const pct = Number(newData[index].percentCompleted) || 0;
-    if (pct >= 100) newData[index].status = 'Completed';
-    else if (pct > 0) newData[index].status = 'In Progress';
-    else newData[index].status = 'In Planning';
-
     setProjectData(newData);
   };
 
   const addNewRow = () => {
-    const newRow = { status: 'In Planning' };
-    columns.forEach(c => { if (c.id !== 'status') newRow[c.id] = ''; });
-    setProjectData([...projectData, newRow]);
+      const newRow = { status: "In Planning" };
+      setProjectData([...projectData, newRow]);
   };
-
+  
   const updateCounts = (data) => {
-    const total = data.length || 0;
-    const completed = data.filter(p => (Number(p.percentCompleted) || 0) >= 100).length;
-    const inProgress = data.filter(p => (Number(p.percentCompleted) || 0) > 0 && (Number(p.percentCompleted) || 0) < 100).length;
+    const total = data.length;
+    const completed = data.filter(p => (p.percentCompleted || 0) >= 100).length;
+    const inProgress = data.filter(p => (p.percentCompleted || 0) > 0 && (p.percentCompleted || 0) < 100).length;
     setStats({ total, completed, inProgress });
   };
 
@@ -182,10 +149,8 @@ const DataEntry = () => {
       <img src="/logo.svg" alt="" className="dashboard-watermark" />
       <div className="header">
         <div className="header-content">
-          <div className="glossy-logo-container">
-            <img src="/logo.svg" alt="ProSlide" className="glossy-logo" />
-          </div>
-          <h1>Pro Slide Dashboard</h1>
+            <div className="glossy-logo-container"><img src="/logo.svg" alt="ProSlide" className="glossy-logo" /></div>
+            <h1>Pro Slide Dashboard</h1>
         </div>
       </div>
 
@@ -193,64 +158,65 @@ const DataEntry = () => {
         <div className="toolbar-left">
           <button className="btn" onClick={saveData}>💾 Save Data</button>
           <button className="btn" onClick={loadData}>🔁 Sync Now</button>
-          <label className="btn btn-import">
-            📥 Import
-            <input type="file" hidden accept=".xlsx,.xls,.csv" onChange={handleFileUpload} />
-          </label>
+          <label className="btn btn-import">📥 Import <input type="file" hidden accept=".xlsx,.csv" onChange={handleFileUpload} /></label>
           <button className="btn btn-secondary" onClick={exportToExcel}>📤 Export Excel</button>
         </div>
         <div className="toolbar-right">
-          <button className="btn btn-danger" onClick={() => { if (confirm('Clear all?')) setProjectData([{}]); }}>🗑️ Clear All</button>
-          <button className="btn" onClick={() => navigate('/')}>📈 View Dashboard</button>
+           <button className="btn btn-danger" onClick={() => { if(confirm("Clear all?")) setProjectData([]); }}>🗑️ Clear All</button>
+           <button className="btn" onClick={() => navigate('/')}>📈 View Dashboard</button>
         </div>
       </div>
 
       <div className="table-info">
-        <span>Projects: <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>{stats.total}</span></span>
-        <span style={{ color: '#666', fontSize: '12px' }}>Last Updated: {new Date().toLocaleTimeString()}</span>
+        <span>Projects: <span style={{color: '#4CAF50', fontWeight:'bold'}}>{stats.total}</span></span>
+        <span style={{color: '#666', fontSize: '12px'}}>Last Updated: {new Date().toLocaleTimeString()}</span>
       </div>
 
       <div className="excel-container">
-        <div className="excel-header">📋 Detailed Project Analytics</div>
+        <div className="excel-header">📋 Project Visibility Dashboard</div>
         <div className="table-container">
-          <table className="excel-table">
-            <thead>
-              <tr>
-                <th className="row-number">S.<br />No.</th>
-                {columns.map(col => <th key={col.id}>{col.name}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {projectData.map((row, rIndex) => (
-                <tr key={rIndex}>
-                  <td className="row-number">{rIndex + 1}</td>
-                  {columns.map(col => (
-                    <td key={col.id}>
-                      <input
-                        className="cell-input"
-                        type={col.type === 'date' ? 'date' : col.type}
-                        value={row[col.id] || ''}
-                        onChange={(e) => handleCellChange(rIndex, col.id, e.target.value)}
-                        readOnly={col.id === 'percentCompleted'}
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <table className="excel-table">
+                <thead>
+                    <tr>
+                        <th className="row-number">S.No</th>
+                        {columns.map(col => <th key={col.id}>{col.name}</th>)}
+                        <th className="action-col">Action</th> {/* NEW DELETE COLUMN */}
+                    </tr>
+                </thead>
+                <tbody>
+                    {projectData.map((row, rIndex) => (
+                        <tr key={rIndex}>
+                            {/* Auto-Renumbering: rIndex + 1 ensures 2 becomes 1 if 1 is deleted */}
+                            <td className="row-number">{rIndex + 1}</td>
+                            
+                            {columns.map(col => (
+                                <td key={col.id}>
+                                    <input 
+                                        className="cell-input" 
+                                        type={col.type} 
+                                        value={row[col.id] || ''} 
+                                        onChange={(e) => handleCellChange(rIndex, col.id, e.target.value)} 
+                                    />
+                                </td>
+                            ))}
+                            
+                            {/* DELETE BUTTON */}
+                            <td style={{textAlign: 'center'}}>
+                                <button className="btn-delete-row" onClick={() => deleteRow(rIndex)}>🗑️</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
         <div className="status-bar">
-          <span>Total Projects: <b>{stats.total}</b></span>
-          <span>Completed: <b>{stats.completed}</b></span>
-          <span>In Progress: <b>{stats.inProgress}</b></span>
+            <span>Total: <b>{stats.total}</b></span>
+            <span>Completed: <b>{stats.completed}</b></span>
+            <span>In Progress: <b>{stats.inProgress}</b></span>
         </div>
       </div>
-
-      <div className="bottom-watermark-container">
-        <img src="/Tlogo.png" alt="TrioVision" className="bottom-watermark-logo" />
-      </div>
-
+      
+      <div className="bottom-watermark-container"><img src="/Tlogo.png" alt="TrioVision" className="bottom-watermark-logo" /></div>
       <button className="float-btn" onClick={addNewRow}>+</button>
     </div>
   );
