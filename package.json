@@ -5,8 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "build": "npm install && cd client && npm install && npm run build",
-    "dev": "concurrently \"node server.js\" \"cd client && npm run dev\""
+    "build": "npm install && cd client && npm install && npm run build"
   },
   "dependencies": {
     "concurrently": "^8.2.0",
