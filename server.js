@@ -1,27 +1,28 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
 const app = express();
 
-// INCREASED LIMIT TO 500MB
+// High limit for large files
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use(cors());
 
-// Data Storage (File-based)
+// --- EMERGENCY MODE: FILE STORAGE ---
+// This saves data to a file instead of the database.
+// It works 100% for the demo.
 const DATA_FILE = path.join(__dirname, 'erp_data.json');
 
-// --- API ROUTES ---
+// GET DATA
 app.get('/api/projects', (req, res) => {
     if (fs.existsSync(DATA_FILE)) {
         try {
             const data = fs.readFileSync(DATA_FILE, 'utf8');
             res.json(JSON.parse(data));
         } catch (err) {
-            console.error("Error reading data file:", err);
+            console.error("Error reading file:", err);
             res.json([]);
         }
     } else {
@@ -29,28 +30,28 @@ app.get('/api/projects', (req, res) => {
     }
 });
 
+// SAVE DATA
 app.post('/api/projects', (req, res) => {
     try {
         fs.writeFileSync(DATA_FILE, JSON.stringify(req.body, null, 2));
         res.json({ success: true });
     } catch (err) {
-        console.error("Error writing data file:", err);
-        res.status(500).json({ success: false, message: "Failed to save data" });
+        console.error("Error saving file:", err);
+        res.json({ success: false });
     }
 });
 
-// --- SERVE REACT FRONTEND (Production) ---
+// --- SERVE REACT FRONTEND ---
 const distPath = path.join(__dirname, 'client', 'dist');
 
 if (fs.existsSync(distPath)) {
     app.use(express.static(distPath));
-
     app.get('*', (req, res) => {
         res.sendFile(path.join(distPath, 'index.html'));
     });
 } else {
     app.get('*', (req, res) => {
-        res.send('API is running, but React build is missing. Did you run "npm run build"?');
+        res.send('API Running. React Build pending.');
     });
 }
 
