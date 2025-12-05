@@ -1,16 +1,51 @@
 :root { --primary-color: #2563eb; --success-color: #059669; --warning-color: #d97706; --gray-50: #f9fafb; --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.dashboard-body { font-family: 'Inter', sans-serif; background: var(--gradient-1); min-height: 100vh; padding-bottom: 2rem; position: relative; overflow: hidden; }
 
-/* 1. Header Styles */
-.dashboard-header { background: rgba(255, 255, 255, 0.95); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; z-index: 1; }
+.dashboard-body { 
+    font-family: 'Inter', sans-serif; 
+    background: var(--gradient-1); 
+    min-height: 100vh; 
+    padding-bottom: 2rem; 
+    position: relative; 
+    overflow: hidden; 
+    color: #333 !important; /* Force default text to be dark */
+}
+
+/* Watermark */
+.dashboard-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 800px;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* HEADER */
+.dashboard-header { 
+    background: rgba(255, 255, 255, 0.95); 
+    padding: 1rem 2rem; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+    position: relative; 
+    z-index: 1; 
+}
+
 .dashboard-title { display: flex; align-items: center; gap: 15px; }
-.dashboard-title h1 { color: #6b66c4; font-size: 1.8rem; margin: 0; font-weight: 600; }
+.dashboard-title h1 { 
+    color: #6b66c4 !important; /* Purple Title */
+    font-size: 1.8rem; 
+    margin: 0; 
+    font-weight: 600; 
+}
 
-/* 2. Top Glossy Logo (logo.svg) */
+/* Glossy Logo */
 .glossy-logo-container { position: relative; display: inline-block; }
 .glossy-logo { height: 50px; width: auto; display: block; }
-
-/* The Shine Animation */
 .glossy-logo-container::after, .bottom-watermark-container::after {
     content: '';
     position: absolute;
@@ -24,44 +59,83 @@
 }
 @keyframes shine { 100% { left: 125%; } }
 
-/* 3. Bottom Right Glossy Logo (Tlogo.png) */
+/* KPI CARDS */
+.kpi-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 1.5rem; 
+    padding: 2rem; 
+    position: relative; 
+    z-index: 1; 
+}
+.kpi-card { 
+    background: rgba(255, 255, 255, 0.95); 
+    padding: 2rem; 
+    border-radius: 1rem; 
+    position: relative; 
+    overflow: hidden; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+}
+.kpi-card.primary::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-1); }
+
+/* KPI TEXT FIX - FORCED COLORS */
+.kpi-card h3 {
+    color: #666 !important;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+.kpi-value { 
+    font-size: 2.5rem; 
+    font-weight: 700; 
+    color: #000000 !important; /* Force Black */
+    margin: 0;
+}
+
+/* CHARTS */
+.charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; padding: 0 2rem; position: relative; z-index: 1; }
+.chart-container { 
+    background: rgba(255,255,255,0.95); 
+    padding: 2rem; 
+    border-radius: 1rem; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+    margin-bottom: 2rem; 
+}
+.chart-container h3 {
+    color: #333 !important; /* Force Black Titles */
+    margin-bottom: 15px;
+}
+
+/* TABLE FIX */
+.advanced-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 0 2rem; position: relative; z-index: 1; }
+.data-table { background: rgba(255,255,255,0.95); border-radius: 1rem; padding: 1rem; grid-column: 1 / -1; }
+.data-table h3 { color: #333 !important; margin-left: 10px; }
+
+table { width: 100%; border-collapse: collapse; }
+th { 
+    background: #f9fafb; 
+    padding: 1rem; 
+    text-align: left; 
+    color: #000 !important; /* Force Black Headers */
+    font-weight: bold;
+}
+td { 
+    padding: 1rem; 
+    border-bottom: 1px solid #eee; 
+    color: #000 !important; /* Force Black Data */
+}
+
+/* Bottom Logo */
 .bottom-watermark-container {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 10; /* Above background, below modals */
+    z-index: 10;
     opacity: 0.9;
     border-radius: 8px;
-    overflow: hidden; /* Contains the shine */
+    overflow: hidden;
     padding: 5px;
-    background: rgba(255,255,255,0.1); /* Subtle box backing */
+    background: rgba(255,255,255,0.1);
     backdrop-filter: blur(2px);
 }
 .bottom-watermark-logo { height: 60px; width: auto; display: block; }
-
-/* 4. Background Watermark (Big Faint Logo) */
-.dashboard-watermark {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    max-width: 800px;
-    opacity: 0.05;
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Grids & Tables */
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; padding: 2rem; position: relative; z-index: 1; }
-.kpi-card { background: rgba(255, 255, 255, 0.95); padding: 2rem; border-radius: 1rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-.kpi-card.primary::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-1); }
-.kpi-value { font-size: 2.5rem; font-weight: 700; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; padding: 0 2rem; position: relative; z-index: 1; }
-.chart-container { background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-.advanced-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 0 2rem; position: relative; z-index: 1; }
-.data-table { background: rgba(255,255,255,0.95); border-radius: 1rem; padding: 1rem; grid-column: 1 / -1; }
-table { width: 100%; border-collapse: collapse; }
-th { background: #f9fafb; padding: 1rem; text-align: left; }
-td { padding: 1rem; border-bottom: 1px solid #eee; }
-.progress-ring { transform: rotate(-90deg); }
