@@ -23,11 +23,9 @@ const Dashboard = () => {
         const res = await axios.get('/api/projects');
         const data = res.data;
         setProjects(data);
-
         const total = data.length;
         const completed = data.filter(p => (Number(p.percentCompleted)||0) >= 100).length;
         const parts = data.reduce((sum, p) => sum + (Number(p.totalPartsProduced)||0), 0);
-        
         setKpi({ total, completed, parts });
     } catch (e) { console.error("Sync error", e); }
   };
@@ -61,12 +59,13 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-body">
-      {/* Background Watermark - SINGLE CORRECT LINE */}
+      {/* Background Watermark (Big Faint Logo) */}
       <img src="/logo.svg" alt="" className="dashboard-watermark" />
 
       <div className="dashboard-header">
          <div className="dashboard-title">
             <div className="glossy-logo-container">
+                {/* TOP LEFT LOGO */}
                 <img src="/logo.svg" alt="ProSlide" className="glossy-logo" />
             </div>
             <h1>Pro Slide Dashboard</h1>
@@ -131,14 +130,7 @@ const Dashboard = () => {
                                 <td>{p.projectDescription}</td>
                                 <td>{p.targetCompletionDate}</td>
                                 <td>{p.totalPartsProduced} / {p.totalParts}</td>
-                                <td>
-                                    <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                                        <div style={{width:'100px', height:'8px', background:'#eee', borderRadius:'4px'}}>
-                                            <div style={{width: `${p.percentCompleted}%`, background: p.percentCompleted >= 100 ? '#10b981' : '#2563eb', height:'100%', borderRadius:'4px'}}></div>
-                                        </div>
-                                        {p.percentCompleted}%
-                                    </div>
-                                </td>
+                                <td>{p.percentCompleted}%</td>
                                 <td>
                                     <span style={{
                                         padding:'5px 10px', 
@@ -156,6 +148,11 @@ const Dashboard = () => {
                 </table>
             </div>
          </div>
+      </div>
+
+      {/* BOTTOM RIGHT GLOSSY LOGO */}
+      <div className="bottom-watermark-container">
+          <img src="/Tlogo.png" alt="TrioVision" className="bottom-watermark-logo" />
       </div>
     </div>
   );

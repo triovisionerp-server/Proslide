@@ -112,13 +112,13 @@ const DataEntry = () => {
   return (
     <div className="data-entry-container">
       {/* Background Watermark */}
-      <img src="/logo.png" alt="" className="dashboard-watermark" />
+      <img src="/Tlogo.png" alt="Watermark" className="dashboard-watermark" />
 
       {/* HEADER WITH LOGO & TITLE */}
       <div className="header">
         <div className="header-content">
             <div className="glossy-logo-container">
-                <img src="/logo.png" alt="ProSlide" className="glossy-logo" />
+                <img src="/logo.svg" alt="ProSlide" className="glossy-logo" />
             </div>
             <h1>Pro Slide Dashboard</h1>
         </div>
@@ -180,7 +180,13 @@ const DataEntry = () => {
             <span>In Progress: <b>{stats.inProgress}</b></span>
         </div>
       </div>
+      
+      {/* BOTTOM RIGHT GLOSSY LOGO */}
+      <div className="bottom-watermark-container">
+          <img src="/Tlogo.png" alt="TrioVision" className="bottom-watermark-logo" />
+      </div>
 
+      {/* FLOAT BUTTON - Correctly placed inside main div */}
       <button className="float-btn" onClick={addNewRow}>+</button>
     </div>
   );

@@ -1,41 +1,17 @@
 :root { --primary-color: #2563eb; --success-color: #059669; --warning-color: #d97706; --gray-50: #f9fafb; --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 .dashboard-body { font-family: 'Inter', sans-serif; background: var(--gradient-1); min-height: 100vh; padding-bottom: 2rem; position: relative; overflow: hidden; }
 
-/* Watermark */
-.dashboard-watermark {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    max-width: 800px;
-    opacity: 0.05; /* Very subtle */
-    pointer-events: none;
-    z-index: 0;
-}
-
+/* 1. Header Styles */
 .dashboard-header { background: rgba(255, 255, 255, 0.95); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; z-index: 1; }
-
-/* Header Title styling to match image */
 .dashboard-title { display: flex; align-items: center; gap: 15px; }
-.dashboard-title h1 { 
-    color: #6b66c4; /* Purple color from image */
-    font-size: 1.8rem; 
-    margin: 0; 
-    font-weight: 600;
-}
+.dashboard-title h1 { color: #6b66c4; font-size: 1.8rem; margin: 0; font-weight: 600; }
 
-/* Glossy Logo Effect */
-.glossy-logo-container {
-    position: relative;
-    display: inline-block;
-}
-.glossy-logo {
-    height: 50px;
-    width: auto;
-    display: block;
-}
-.glossy-logo-container::after {
+/* 2. Top Glossy Logo (logo.svg) */
+.glossy-logo-container { position: relative; display: inline-block; }
+.glossy-logo { height: 50px; width: auto; display: block; }
+
+/* The Shine Animation */
+.glossy-logo-container::after, .bottom-watermark-container::after {
     content: '';
     position: absolute;
     top: 0;
@@ -46,12 +22,37 @@
     transform: skewX(-25deg);
     animation: shine 3s infinite;
 }
+@keyframes shine { 100% { left: 125%; } }
 
-@keyframes shine {
-    100% { left: 125%; }
+/* 3. Bottom Right Glossy Logo (Tlogo.png) */
+.bottom-watermark-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10; /* Above background, below modals */
+    opacity: 0.9;
+    border-radius: 8px;
+    overflow: hidden; /* Contains the shine */
+    padding: 5px;
+    background: rgba(255,255,255,0.1); /* Subtle box backing */
+    backdrop-filter: blur(2px);
+}
+.bottom-watermark-logo { height: 60px; width: auto; display: block; }
+
+/* 4. Background Watermark (Big Faint Logo) */
+.dashboard-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 800px;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
 }
 
-
+/* Grids & Tables */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; padding: 2rem; position: relative; z-index: 1; }
 .kpi-card { background: rgba(255, 255, 255, 0.95); padding: 2rem; border-radius: 1rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
 .kpi-card.primary::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-1); }

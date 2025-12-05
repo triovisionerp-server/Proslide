@@ -211,11 +211,11 @@
     color: #666;
 }
 
-/* FAB */
+/* FAB (Floating Action Button) - MOVED TO LEFT SIDE */
 .float-btn { 
     position: fixed; 
     bottom: 30px; 
-    right: 30px; 
+    left: 30px; /* Changed from right to left */
     width: 50px; 
     height: 50px; 
     border-radius: 50%; 
