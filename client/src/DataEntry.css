@@ -1,7 +1,7 @@
 .data-entry-container { 
     font-family: 'Segoe UI', Tahoma, sans-serif; 
     background: #f0f2f5; 
-    color: #333; /* Default text color for the page */
+    color: #333; 
     min-height: 100vh;
     position: relative;
     overflow: hidden;
@@ -38,7 +38,7 @@
 }
 
 .header h1 { 
-    color: #6b66c4 !important; /* FORCE PURPLE COLOR */
+    color: #6b66c4; 
     font-size: 1.8rem; 
     margin: 0; 
     font-weight: 600;
@@ -59,7 +59,6 @@
     animation: shine 3s infinite;
 }
 @keyframes shine { 100% { left: 125%; } }
-
 
 /* TOOLBAR */
 .toolbar { 
@@ -167,7 +166,7 @@
 }
 .excel-table tr:hover { background-color: #f8f9fa; }
 
-/* INPUTS - THIS IS THE IMPORTANT FIX */
+/* INPUTS - FIXED WHITE TEXT ISSUE HERE */
 .cell-input { 
     width: 100%; 
     border: none; 
@@ -201,11 +200,11 @@
     color: #666;
 }
 
-/* FAB (Floating Action Button) - LEFT SIDE */
+/* FAB (Floating Action Button) - MOVED TO LEFT SIDE */
 .float-btn { 
     position: fixed; 
     bottom: 30px; 
-    left: 30px; 
+    left: 30px; /* CHANGED FROM RIGHT TO LEFT */
     width: 50px; 
     height: 50px; 
     border-radius: 50%; 
