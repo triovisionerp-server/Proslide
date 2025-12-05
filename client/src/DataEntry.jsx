@@ -52,6 +52,13 @@ const DataEntry = () => {
     } catch (err) { alert("Save failed"); }
   };
 
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(projectData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Projects");
+    XLSX.writeFile(wb, "ProSlide_Data.xlsx");
+  };
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -104,15 +111,16 @@ const DataEntry = () => {
 
   return (
     <div className="data-entry-container">
-      {/* HEADER WITH LOGO */}
+      {/* Background Watermark */}
+      <img src="/logo.png" alt="" className="dashboard-watermark" />
+
+      {/* HEADER WITH LOGO & TITLE */}
       <div className="header">
         <div className="header-content">
-            {/* Make sure to put your logo.png in the 'public' folder */}
-            <img src="/logo.svg" alt="ProSlide" className="logo" /> 
-            <div>
-                <h1>📊 ProSlide Visibility Dashboard</h1>
-                <p>Production tracking and project management system</p>
+            <div className="glossy-logo-container">
+                <img src="/logo.png" alt="ProSlide" className="glossy-logo" />
             </div>
+            <h1>Pro Slide Dashboard</h1>
         </div>
       </div>
 
@@ -121,9 +129,10 @@ const DataEntry = () => {
           <button className="btn" onClick={saveData}>💾 Save Data</button>
           <button className="btn" onClick={loadData}>🔁 Sync Now</button>
           <label className="btn btn-import">
-             📥 Import Excel
+             📥 Import
              <input type="file" hidden accept=".xlsx,.csv" onChange={handleFileUpload} />
           </label>
+          <button className="btn btn-secondary" onClick={exportToExcel}>📤 Export Excel</button>
         </div>
         <div className="toolbar-right">
            <button className="btn btn-danger" onClick={() => { if(confirm("Clear all?")) setProjectData([{}]); }}>🗑️ Clear All</button>
@@ -132,17 +141,17 @@ const DataEntry = () => {
       </div>
 
       <div className="table-info">
-        <span>Projects: <b>{stats.total}</b></span>
-        <span>Last Updated: {new Date().toLocaleTimeString()}</span>
+        <span>Projects: <span style={{color: '#4CAF50', fontWeight:'bold'}}>{stats.total}</span></span>
+        <span style={{color: '#666', fontSize: '12px'}}>Last Updated: {new Date().toLocaleTimeString()}</span>
       </div>
 
       <div className="excel-container">
-        <div className="excel-header">📋 Project Data Table</div>
+        <div className="excel-header">📋 Project Visibility Dashboard</div>
         <div className="table-container">
             <table className="excel-table">
                 <thead>
                     <tr>
-                        <th className="row-number">No.</th>
+                        <th className="row-number">S.<br/>No.</th>
                         {columns.map(col => <th key={col.id}>{col.name}</th>)}
                     </tr>
                 </thead>
@@ -164,6 +173,11 @@ const DataEntry = () => {
                     ))}
                 </tbody>
             </table>
+        </div>
+        <div className="status-bar">
+            <span>Total Projects: <b>{stats.total}</b></span>
+            <span>Completed: <b>{stats.completed}</b></span>
+            <span>In Progress: <b>{stats.inProgress}</b></span>
         </div>
       </div>
 

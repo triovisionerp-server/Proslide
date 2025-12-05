@@ -24,7 +24,6 @@ const Dashboard = () => {
         const data = res.data;
         setProjects(data);
 
-        // Calculate KPIs
         const total = data.length;
         const completed = data.filter(p => (Number(p.percentCompleted)||0) >= 100).length;
         const parts = data.reduce((sum, p) => sum + (Number(p.totalPartsProduced)||0), 0);
@@ -62,9 +61,15 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-body">
+      {/* Background Watermark - SINGLE CORRECT LINE */}
+      <img src="/logo.svg" alt="" className="dashboard-watermark" />
+
       <div className="dashboard-header">
          <div className="dashboard-title">
-            <h1>ProSlide Dashboard</h1>
+            <div className="glossy-logo-container">
+                <img src="/logo.svg" alt="ProSlide" className="glossy-logo" />
+            </div>
+            <h1>Pro Slide Dashboard</h1>
          </div>
          <div>
             <span style={{marginRight: '15px', color: '#666'}}>Last Sync: {new Date().toLocaleTimeString()}</span>
@@ -87,7 +92,6 @@ const Dashboard = () => {
             <h3>Parts Produced</h3>
             <div className="kpi-value" style={{color: '#d97706'}}>{kpi.parts.toLocaleString()}</div>
          </div>
-         {/* Average KPI Removed */}
       </div>
 
       <div className="charts-grid">
@@ -106,9 +110,6 @@ const Dashboard = () => {
       </div>
 
       <div className="advanced-grid">
-         {/* HEATMAP REMOVED */}
-
-         {/* Detailed Data Table */}
          <div className="data-table" style={{gridColumn: '1 / -1'}}>
             <h3>Detailed Analytics</h3>
             <div style={{overflowX: 'auto'}}>
