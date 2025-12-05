@@ -1,57 +1,87 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
+const mongoose = require('mongoose');
 
 const app = express();
 
-// High limit for large files
+// Increase limit for large Excel files
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use(cors());
 
-// --- EMERGENCY MODE: FILE STORAGE ---
-// This saves data to a file instead of the database.
-// It works 100% for the demo.
-const DATA_FILE = path.join(__dirname, 'erp_data.json');
+// --- 1. CONNECT TO MONGODB ---
+// This connects to the "Vault" using the link you will add in Render
+const mongoUri = process.env.MONGO_URI;
 
-// GET DATA
-app.get('/api/projects', (req, res) => {
-    if (fs.existsSync(DATA_FILE)) {
-        try {
-            const data = fs.readFileSync(DATA_FILE, 'utf8');
-            res.json(JSON.parse(data));
-        } catch (err) {
-            console.error("Error reading file:", err);
-            res.json([]);
-        }
-    } else {
-        res.json([]);
+if (!mongoUri) {
+    console.error("❌ FATAL ERROR: MONGO_URI is missing. Add it to Render Environment Variables!");
+} else {
+    mongoose.connect(mongoUri)
+        .then(() => console.log("✅ Connected to MongoDB successfully!"))
+        .catch(err => console.error("❌ MongoDB Connection Error:", err));
+}
+
+// --- 2. DEFINE THE DATA SHAPE ---
+const ProjectSchema = new mongoose.Schema({
+    projectCode: String,
+    projectDescription: String,
+    destination: String,
+    poReference: String,
+    targetCompletionDate: String,
+    estimatedStartDate: String,
+    totalParts: String,
+    totalPartsProduced: String,
+    totalPartsToBeProduced: String,
+    percentCompleted: String,
+    expectedCompletionDate: String,
+    containerNumber: String,
+    containerType: String,
+    dispatchDate: String,
+    arrivalDate: String,
+    status: String,
+    remarks: String,
+}, { strict: false });
+
+const Project = mongoose.model('Project', ProjectSchema);
+
+// --- API ROUTES ---
+
+// GET: Fetch all projects
+app.get('/api/projects', async (req, res) => {
+    try {
+        const projects = await Project.find({});
+        res.json(projects);
+    } catch (err) {
+        console.error("Error fetching projects:", err);
+        res.status(500).json([]);
     }
 });
 
-// SAVE DATA
-app.post('/api/projects', (req, res) => {
+// POST: Save all projects
+app.post('/api/projects', async (req, res) => {
     try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(req.body, null, 2));
+        const newProjects = req.body;
+        // 1. Delete all old data
+        await Project.deleteMany({});
+        // 2. Insert new data
+        if (newProjects.length > 0) {
+            await Project.insertMany(newProjects);
+        }
         res.json({ success: true });
     } catch (err) {
-        console.error("Error saving file:", err);
-        res.json({ success: false });
+        console.error("Error saving projects:", err);
+        res.status(500).json({ success: false, message: "Database Error" });
     }
 });
 
 // --- SERVE REACT FRONTEND ---
 const distPath = path.join(__dirname, 'client', 'dist');
-
-if (fs.existsSync(distPath)) {
+if (require('fs').existsSync(distPath)) {
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
         res.sendFile(path.join(distPath, 'index.html'));
-    });
-} else {
-    app.get('*', (req, res) => {
-        res.send('API Running. React Build pending.');
     });
 }
 
