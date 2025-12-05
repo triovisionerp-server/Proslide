@@ -1,10 +1,14 @@
-.data-entry-container { 
-    font-family: 'Segoe UI', Tahoma, sans-serif; 
-    background: #f0f2f5; 
-    color: #333; 
-    min-height: 100vh;
+.data-entry-container {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    width: 100%;
+    min-height: 100%;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
 }
 
 /* Watermark */
@@ -21,9 +25,9 @@
 }
 
 /* HEADER */
-.header { 
-    background: white; 
-    padding: 15px 25px; 
+.header {
+    background: white;
+    padding: 15px 25px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: relative;
     z-index: 1;
@@ -37,10 +41,10 @@
     text-align: left;
 }
 
-.header h1 { 
-    color: #6b66c4; 
-    font-size: 1.8rem; 
-    margin: 0; 
+.header h1 {
+    color: #6b66c4;
+    font-size: 1.8rem;
+    margin: 0;
     font-weight: 600;
 }
 
@@ -58,18 +62,18 @@
     transform: skewX(-25deg);
     animation: shine 3s infinite;
 }
-@keyframes shine { 100% { left: 125%; } }
+@keyframes shine { 100% { left: 10%; } }
 
 /* TOOLBAR */
-.toolbar { 
-    background: white; 
-    padding: 15px 20px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-    flex-wrap: wrap; 
-    gap: 10px; 
+.toolbar {
+    background: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    flex-wrap: wrap;
+    gap: 10px;
     border-bottom: 1px solid #eee;
     position: relative;
     z-index: 1;
@@ -77,35 +81,35 @@
 .toolbar-left, .toolbar-right { display: flex; gap: 8px; }
 
 /* BUTTONS */
-.btn { 
-    background: #1c8ccc; 
-    color: white; 
-    border: none; 
-    padding: 8px 16px; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    display: inline-flex; 
-    align-items: center; 
-    gap: 6px; 
-    font-size: 13px; 
-    font-weight: 500; 
+.btn {
+    background: #1c8ccc;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
     transition: background 0.2s;
 }
 .btn:hover { background: #1578b0; }
-.btn-import { background: #1c8ccc; cursor: pointer; } 
-.btn-secondary { background: #2196F3; } 
+.btn-import { background: #1c8ccc; cursor: pointer; }
+.btn-secondary { background: #2196F3; }
 .btn-danger { background: #f44336; }
 .btn-danger:hover { background: #d32f2f; }
 
 /* INFO BAR */
-.table-info { 
-    background: white; 
-    padding: 12px 20px; 
-    margin: 15px 20px; 
-    border-radius: 4px; 
-    display: flex; 
-    justify-content: space-between; 
-    color: #666; 
+.table-info {
+    background: white;
+    padding: 12px 20px;
+    margin: 15px 20px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    color: #666;
     font-size: 13px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     position: relative;
@@ -113,80 +117,84 @@
 }
 
 /* EXCEL CONTAINER */
-.excel-container { 
-    background: white; 
-    border-radius: 8px; 
-    margin: 0 20px 20px 20px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
-    overflow: hidden; 
+.excel-container {
+    background: white;
+    border-radius: 8px;
+    margin: 0 20px 20px 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    overflow: hidden;
     position: relative;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
-.excel-header { 
-    background: #FFD700; 
-    padding: 12px; 
-    font-weight: 600; 
-    text-align: center; 
-    color: #444; 
+.excel-header {
+    background: #FFD700;
+    padding: 12px;
+    font-weight: 600;
+    text-align: center;
+    color: #444;
     font-size: 14px;
     border-bottom: 1px solid #e0c000;
 }
 
 /* TABLE */
-.table-container { 
-    overflow: auto; 
-    max-height: 65vh; 
+.table-container {
+    overflow: auto;
+    flex: 1;
+    max-height: none;
     border-top: 1px solid #ddd;
 }
-.excel-table { 
-    width: 100%; 
-    border-collapse: separate; 
-    border-spacing: 0; 
+.excel-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
 }
-.excel-table th { 
-    background: #FFD700; 
-    padding: 8px 6px; 
-    position: sticky; 
-    top: 0; 
-    z-index: 20; 
-    border-bottom: 1px solid #d4b000; 
-    border-right: 1px solid #d4b000; 
-    min-width: 110px; 
-    font-size: 11px; 
-    text-align: center; 
-    vertical-align: middle; 
+.excel-table th {
+    background: #FFD700;
+    padding: 8px 6px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border-bottom: 1px solid #d4b000;
+    border-right: 1px solid #d4b000;
+    min-width: 110px;
+    font-size: 11px;
+    text-align: center;
+    vertical-align: middle;
     color: #333;
 }
-.excel-table td { 
-    border-bottom: 1px solid #eee; 
-    border-right: 1px solid #eee; 
-    padding: 0; 
-    min-width: 110px; 
+.excel-table td {
+    border-bottom: 1px solid #eee;
+    border-right: 1px solid #eee;
+    padding: 0;
+    min-width: 110px;
 }
 .excel-table tr:hover { background-color: #f8f9fa; }
 
 /* INPUTS - FIXED WHITE TEXT ISSUE HERE */
-.cell-input { 
-    width: 100%; 
-    border: none; 
-    padding: 6px 8px; 
-    outline: none; 
-    background: transparent; 
-    font-family: inherit; 
-    font-size: 12px; 
+.cell-input {
+    width: 100%;
+    border: none;
+    padding: 6px 8px;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
     text-align: left;
     color: #000000 !important; /* FORCE BLACK TEXT */
 }
 .cell-input:focus { background: #fff3e0; box-shadow: inset 0 0 0 1px #4CAF50; }
 
-.row-number { 
-    background: #f9fafb; 
-    text-align: center; 
-    font-weight: 600; 
-    width: 40px; 
-    min-width: 40px !important; 
-    color: #555; 
+.row-number {
+    background: #f9fafb;
+    text-align: center;
+    font-weight: 600;
+    width: 40px;
+    min-width: 40px !important;
+    color: #555;
     font-size: 11px;
 }
 
@@ -201,23 +209,23 @@
 }
 
 /* FAB (Floating Action Button) - MOVED TO LEFT SIDE */
-.float-btn { 
-    position: fixed; 
-    bottom: 30px; 
+.float-btn {
+    position: fixed;
+    bottom: 30px;
     left: 30px; /* CHANGED FROM RIGHT TO LEFT */
-    width: 50px; 
-    height: 50px; 
-    border-radius: 50%; 
-    background: #145772; 
-    color: white; 
-    border: none; 
-    font-size: 24px; 
-    cursor: pointer; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #145772;
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s; 
+    transition: transform 0.2s;
     z-index: 2;
 }
 .float-btn:hover { transform: scale(1.1); background: #10445a; }
